@@ -9,7 +9,7 @@ from typing import Iterator
 from llama_cpp import Llama
 
 from memory import load_system_instructions
-from utils import MODEL_PATH
+from utils import existing_model_path
 
 BASE_SYSTEM = (
     "You are a precise assistant that answers only using the provided context. "
@@ -33,11 +33,11 @@ def is_gpu_active() -> bool:
 def get_llm() -> Llama:
     """Load the llama.cpp model lazily once per process."""
     global _llm, _gpu_active
-    model_file = Path(MODEL_PATH)
+    model_file = existing_model_path()
     if not model_file.exists():
         raise FileNotFoundError(
             f"Model file not found at {model_file}. "
-            "Download llama-3.2-3b-instruct-q4_k_m.gguf using the in-app downloader "
+            "Download Llama-3.2-3B-Instruct-Q4_K_M.gguf using the in-app downloader "
             "or run: python download_model.py"
         )
     if _llm is None:

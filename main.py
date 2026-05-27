@@ -15,7 +15,7 @@ os.environ["STREAMLIT_SERVER_FILE_WATCHER_TYPE"] = "none"
 import utils
 from events import drain_ingest_events
 from memory import load_system_instructions, save_note, save_system_instructions
-from utils import ERROR_LOG, MODEL_PATH, ensure_dirs, log_usage, set_knowledge_base_path
+from utils import ERROR_LOG, MODEL_PATH, ensure_dirs, existing_model_path, log_usage, set_knowledge_base_path
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -61,7 +61,8 @@ def _download_model_with_progress(dest: Path) -> None:
 
 
 def _ensure_model_available() -> bool:
-    if MODEL_PATH.exists() and MODEL_PATH.stat().st_size > 0:
+    model_on_disk = existing_model_path()
+    if model_on_disk.exists() and model_on_disk.stat().st_size > 0:
         return True
 
     st.warning("The Llama 3.2 model is required to answer questions.")
@@ -70,6 +71,10 @@ def _ensure_model_available() -> bool:
     if st.button("Download model", key="download_model_btn", type="primary"):
         try:
             _download_model_with_progress(MODEL_PATH)
+            # If a legacy lowercase file exists, prefer canonical by renaming.
+            legacy = MODEL_PATH.parent / "llama-3.2-3b-instruct-q4_k_m.gguf"
+            if legacy.exists() and not MODEL_PATH.exists():
+                legacy.replace(MODEL_PATH)
             st.toast("Model downloaded", icon="✅")
             st.rerun()
         except Exception as exc:

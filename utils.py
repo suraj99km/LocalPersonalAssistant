@@ -40,7 +40,22 @@ if IS_FROZEN:
     MODELS_DIR = app_support_dir() / "models"
 else:
     MODELS_DIR = BASE_DIR / "models"
-MODEL_PATH = MODELS_DIR / "llama-3.2-3b-instruct-q4_k_m.gguf"
+MODEL_FILENAME = "Llama-3.2-3B-Instruct-Q4_K_M.gguf"
+MODEL_PATH = MODELS_DIR / MODEL_FILENAME
+
+
+def existing_model_path() -> Path:
+    """
+    Return the on-disk model path if present.
+    Accepts both canonical filename and a legacy lowercase filename.
+    """
+    canonical = MODEL_PATH
+    if canonical.exists() and canonical.stat().st_size > 0:
+        return canonical
+    legacy = MODELS_DIR / "llama-3.2-3b-instruct-q4_k_m.gguf"
+    if legacy.exists() and legacy.stat().st_size > 0:
+        return legacy
+    return canonical
 
 _default_kb = Path.home() / "MySpace" / "KnowledgeBase"
 KNOWLEDGE_BASE = Path(os.environ.get("KNOWLEDGE_BASE", str(_default_kb))).expanduser()
