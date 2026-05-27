@@ -22,10 +22,10 @@ for pkg in [
     "fitz",  # PyMuPDF
     "docx",  # python-docx
 ]:
-    collected = collect_all(pkg)
-    datas += collected.datas
-    binaries += collected.binaries
-    hiddenimports += collected.hiddenimports
+    collected_datas, collected_binaries, collected_hidden = collect_all(pkg)
+    datas += collected_datas
+    binaries += collected_binaries
+    hiddenimports += collected_hidden
 
 # Bundle Streamlit config (model is downloaded on first run)
 datas += [
