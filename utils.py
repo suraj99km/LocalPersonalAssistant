@@ -11,17 +11,35 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-if getattr(sys, "frozen", False):
+IS_FROZEN = bool(getattr(sys, "frozen", False))
+if IS_FROZEN:
     BASE_DIR = Path(sys.executable).resolve().parent
 else:
     BASE_DIR = Path(__file__).resolve().parent
+
+APP_NAME = "LocalPrivateAssistant"
+
+
+def app_support_dir() -> Path:
+    """Return a user-writable per-app data directory."""
+    home = Path.home()
+    if sys.platform == "darwin":
+        return home / "Library" / "Application Support" / APP_NAME
+    if sys.platform.startswith("win"):
+        base = Path(os.environ.get("APPDATA", str(home / "AppData" / "Roaming")))
+        return base / APP_NAME
+    # Linux and others
+    return home / ".local" / "share" / APP_NAME
 
 DATA_DIR = BASE_DIR / "data"
 CHROMA_DIR = DATA_DIR / "chroma"
 NOTES_DIR = DATA_DIR / "notes"
 USAGE_LOG = DATA_DIR / "usage_log.jsonl"
 ERROR_LOG = DATA_DIR / "error.log"
-MODELS_DIR = BASE_DIR / "models"
+if IS_FROZEN:
+    MODELS_DIR = app_support_dir() / "models"
+else:
+    MODELS_DIR = BASE_DIR / "models"
 MODEL_PATH = MODELS_DIR / "Llama-3.2-3B-Instruct-Q4_K_M.gguf"
 
 _default_kb = Path.home() / "MySpace" / "KnowledgeBase"

@@ -33,11 +33,18 @@ python -m pip install --upgrade pip
 echo "==> Installing dependencies"
 pip install -r requirements.txt
 
-echo "==> Downloading model (if missing)"
-python download_model.py
+echo "==> Ensuring PyInstaller is installed"
+python -m pip install "pyinstaller>=6.0.0"
+
+if [[ "${DOWNLOAD_MODEL:-0}" == "1" ]]; then
+  echo "==> Downloading model (if missing)"
+  python download_model.py
+else
+  echo "==> Skipping model download (DOWNLOAD_MODEL=1 to include locally)"
+fi
 
 echo "==> Building .app via PyInstaller"
-pyinstaller --noconfirm build_macos.spec
+python -m PyInstaller --noconfirm build_macos.spec
 
 APP_PATH="dist/PersonalRAG.app"
 if [[ ! -d "$APP_PATH" ]]; then

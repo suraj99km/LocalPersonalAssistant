@@ -18,7 +18,7 @@ A **100% local, private** RAG assistant that turns a folder of documents into a 
 1. Download the `PersonalRAG.dmg` file from the latest release.
 2. Open the `.dmg` and drag `PersonalRAG` to your Applications folder.
 3. Double-click to launch – your browser will open automatically.
-4. No Python, Ollama, or internet required (except for the initial download).
+4. On first launch, the app will download the Llama model (one-time). After that it runs fully offline.
 
 **System Requirements:** macOS 12+ (Monterey or later), 8 GB RAM, ~3.5 GB free disk space.
 

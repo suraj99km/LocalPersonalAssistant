@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 import os
 import re
+import urllib.request
 
 import streamlit as st
 os.environ["STREAMLIT_SERVER_FILE_WATCHER_TYPE"] = "none"
@@ -14,7 +15,7 @@ os.environ["STREAMLIT_SERVER_FILE_WATCHER_TYPE"] = "none"
 import utils
 from events import drain_ingest_events
 from memory import load_system_instructions, save_note, save_system_instructions
-from utils import ERROR_LOG, ensure_dirs, log_usage, set_knowledge_base_path
+from utils import ERROR_LOG, MODEL_PATH, ensure_dirs, log_usage, set_knowledge_base_path
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -22,11 +23,59 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 CHAT_FILE_TYPES = ["pdf", "docx", "txt", "md"]
 MAX_MESSAGES = 20  # 10 user/assistant pairs
 
+MODEL_URL = (
+    "https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/"
+    "Llama-3.2-3B-Instruct-Q4_K_M.gguf"
+)
+
 
 def _append_error_log(exc: Exception) -> None:
     ERROR_LOG.parent.mkdir(parents=True, exist_ok=True)
     with ERROR_LOG.open("a", encoding="utf-8") as f:
         f.write(f"{exc}\n{traceback.format_exc()}\n")
+
+
+def _download_model_with_progress(dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    tmp = dest.with_suffix(dest.suffix + ".part")
+    if tmp.exists():
+        tmp.unlink()
+
+    progress = st.progress(0, text="Downloading model…")
+    status = st.empty()
+
+    def reporthook(block_num: int, block_size: int, total_size: int) -> None:
+        if total_size <= 0:
+            return
+        downloaded = block_num * block_size
+        pct = int(min(100, (downloaded / total_size) * 100))
+        progress.progress(pct, text="Downloading model…")
+        mb = downloaded / (1024 * 1024)
+        total_mb = total_size / (1024 * 1024)
+        status.caption(f"{mb:.1f} MB / {total_mb:.1f} MB")
+
+    urllib.request.urlretrieve(MODEL_URL, tmp, reporthook=reporthook)
+    tmp.replace(dest)
+    progress.progress(100, text="Download complete")
+    status.empty()
+
+
+def _ensure_model_available() -> bool:
+    if MODEL_PATH.exists() and MODEL_PATH.stat().st_size > 0:
+        return True
+
+    st.warning("The Llama 3.2 model is required to answer questions.")
+    st.caption(f"Model path: `{MODEL_PATH}`")
+    st.caption("This is a one-time download. After that, everything runs offline.")
+    if st.button("Download model", key="download_model_btn", type="primary"):
+        try:
+            _download_model_with_progress(MODEL_PATH)
+            st.toast("Model downloaded", icon="✅")
+            st.rerun()
+        except Exception as exc:
+            _append_error_log(exc)
+            st.error(f"Failed to download model: {exc}")
+    return False
 
 
 def _init_session() -> None:
@@ -593,7 +642,7 @@ def main() -> None:
     _cleanup_orphans_once()
     _drain_ingest_notifications()
 
-    st.title("Local Personal Assistant")
+    st.title("Local Personal AI Assistant")
     st.caption("Llama 3.2 · 100% private · runs locally")
     _render_sidebar()
 
@@ -602,13 +651,23 @@ def main() -> None:
         st.button("Dismiss", key="dismiss_error_btn", on_click=_clear_pending_error)
 
     _render_messages()
-    _render_and_process_pending_query()
-    st.chat_input(
-        "Ask anything about your documents...",
-        key="chat_prompt",
-        on_submit=on_chat_submit,
-        disabled=st.session_state.processing,
-    )
+
+    # If model is missing, guide the user to download it and disable chat.
+    model_ready = _ensure_model_available()
+    if model_ready:
+        _render_and_process_pending_query()
+        st.chat_input(
+            "Ask anything about your documents...",
+            key="chat_prompt",
+            on_submit=on_chat_submit,
+            disabled=st.session_state.processing,
+        )
+    else:
+        st.chat_input(
+            "Ask anything about your documents...",
+            key="chat_prompt",
+            disabled=True,
+        )
 
 
 main()
