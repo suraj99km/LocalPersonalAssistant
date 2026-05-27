@@ -1,0 +1,10 @@
+llama-cpp-python
+watchdog
+chromadb
+sentence-transformers
+rank-bm25
+PyMuPDF
+python-docx
+streamlit
+plyer
+tiktoken

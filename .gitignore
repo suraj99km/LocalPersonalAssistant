@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+
+# Virtualenvs
+venv/
+.venv/
+
+# Local env/config
+.env
+.DS_Store
+
+# Runtime data
+data/
+usage_log.jsonl
+*.log
+
+# Models (do not commit large binaries)
+models/*.gguf
+
+# Build artifacts
+dist/
+build/
+*.spec
