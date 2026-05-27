@@ -37,7 +37,29 @@ pip install -r requirements.txt
 python download_model.py
 python run_app.py
 ```
-
+⚠️ Manual Model Downloader Fallback (If download_model.py fails)
+If the automated download script stalls or throws an error, you can manually grab the weights from any browser or terminal session:
+Download the GGUF file directly:
+Navigate to the official Hugging Face repository or click this direct link to fetch the exact quantized profile used by this application:
+Model: Llama-3.2-3B-Instruct-Q4_K_M.gguf
+URL: https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/blob/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf
+Alternatively, download it via your terminal using curl or wget:
+```bash
+curl -L -o llama-3.2-3b-instruct.Q4_K_M.gguf "https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf?download=true"
+```
+Map the File to Your Directory Topology:
+Once downloaded, create a models/ directory in the root of the project workspace and drop the .gguf file inside it. The file structure must match this layout precisely:
+Plaintext
+local-rag/
+├── main.py
+├── run_app.py
+├── models/
+│   └── llama-3.2-3b-instruct.Q4_K_M.gguf  <-- Drop file exactly here
+Verify and Boot:
+Ensure the filename matches the naming convention exactly. Once verified, bypass the down script completely and boot up the main application pipeline directly:
+```bash
+python run_app.py
+```
 ### Knowledge Base folder
 By default, documents live in:
 - `~/MySpace/KnowledgeBase`
