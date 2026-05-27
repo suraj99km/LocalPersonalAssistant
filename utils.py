@@ -40,7 +40,7 @@ if IS_FROZEN:
     MODELS_DIR = app_support_dir() / "models"
 else:
     MODELS_DIR = BASE_DIR / "models"
-MODEL_PATH = MODELS_DIR / "Llama-3.2-3B-Instruct-Q4_K_M.gguf"
+MODEL_PATH = MODELS_DIR / "llama-3.2-3b-instruct-q4_k_m.gguf"
 
 _default_kb = Path.home() / "MySpace" / "KnowledgeBase"
 KNOWLEDGE_BASE = Path(os.environ.get("KNOWLEDGE_BASE", str(_default_kb))).expanduser()

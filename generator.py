@@ -37,7 +37,7 @@ def get_llm() -> Llama:
     if not model_file.exists():
         raise FileNotFoundError(
             f"Model file not found at {model_file}. "
-            "Download Llama-3.2-3B-Instruct-Q4_K_M.gguf using the in-app downloader "
+            "Download llama-3.2-3b-instruct-q4_k_m.gguf using the in-app downloader "
             "or run: python download_model.py"
         )
     if _llm is None:
