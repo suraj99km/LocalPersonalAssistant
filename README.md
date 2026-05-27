@@ -49,12 +49,13 @@ curl -L -o llama-3.2-3b-instruct.Q4_K_M.gguf "https://huggingface.co/bartowski/L
 ```
 Map the File to Your Directory Topology:
 Once downloaded, create a models/ directory in the root of the project workspace and drop the .gguf file inside it. The file structure must match this layout precisely:
-Plaintext
+```Plaintext
 local-rag/
 ├── main.py
 ├── run_app.py
 ├── models/
 │   └── llama-3.2-3b-instruct.Q4_K_M.gguf  <-- Drop file exactly here
+```
 Verify and Boot:
 Ensure the filename matches the naming convention exactly. Once verified, bypass the down script completely and boot up the main application pipeline directly:
 ```bash
