@@ -1,4 +1,4 @@
-## Local Private Assistant
+## Local Personal AI Assistant
 
 A **100% local, private** RAG assistant that turns a folder of documents into a searchable, chat-based knowledge base — **no cloud, no Ollama, no telemetry**.
 
